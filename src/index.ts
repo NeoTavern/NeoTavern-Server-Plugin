@@ -212,7 +212,7 @@ interface PluginInfo {
 
 export default {
   init,
-  exit: (): void => { },
+  exit: (): void => {},
   info: {
     id: ID,
     name: 'V2 Server',
