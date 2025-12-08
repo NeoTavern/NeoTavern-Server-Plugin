@@ -20,3 +20,12 @@ export interface SamplerPresetResponse {
   name: string;
   preset: SamplerPreset;
 }
+
+export interface ThemeDefinition {
+  [key: string]: unknown;
+}
+
+export interface ThemeResponse {
+  name: string;
+  theme: ThemeDefinition;
+}

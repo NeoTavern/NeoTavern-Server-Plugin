@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { Request, SamplerPresetResponse } from './types';
+import { Request, SamplerPresetResponse, ThemeResponse } from './types';
 import path from 'node:path';
 import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 
 const ID = 'v2';
 const SETTINGS_FILE = 'v2Settings.json';
 const PRESET_DIR = 'v2ExperimentalSamplerPreset';
+const THEME_DIR = 'v2Themes';
 
 async function init(router: Router): Promise<void> {
   // @ts-ignore
@@ -117,6 +118,87 @@ async function init(router: Router): Promise<void> {
       } else {
         console.error('Error deleting preset:', error);
         response.status(500).json({ error: 'Failed to delete preset' });
+      }
+    }
+  });
+
+  // @ts-ignore
+  router.get('/themes', async (request: Request, response) => {
+    const baseDir = path.join(request.user.directories.root, THEME_DIR);
+    try {
+      const entries = await readdir(baseDir, { withFileTypes: true });
+      const themes: ThemeResponse[] = [];
+      for (const entry of entries) {
+        if (entry.isFile() && entry.name.endsWith('.json')) {
+          const name = entry.name.slice(0, -5);
+          const filePath = path.join(baseDir, entry.name);
+          const content = await readFile(filePath, 'utf8');
+          const themeData: Record<string, unknown> = JSON.parse(content);
+          themes.push({ name, theme: themeData } as ThemeResponse);
+        }
+      }
+      response.json(themes);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        response.json([]);
+      } else {
+        console.error('Error reading themes:', error);
+        response.status(500).json({ error: 'Failed to read themes' });
+      }
+    }
+  });
+
+  // @ts-ignore
+  router.get('/themes/:name', async (request: Request, response) => {
+    const { name } = request.params;
+    const baseDir = path.join(request.user.directories.root, THEME_DIR);
+    const filePath = path.join(baseDir, `${name}.json`);
+    try {
+      const content = await readFile(filePath, 'utf8');
+      const themeData: Record<string, unknown> = JSON.parse(content);
+      response.json({ name, theme: themeData } satisfies ThemeResponse);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        response.status(404).json({ error: 'Theme not found' });
+      } else {
+        console.error('Error reading theme:', error);
+        response.status(500).json({ error: 'Failed to read theme' });
+      }
+    }
+  });
+
+  // @ts-ignore
+  router.post('/themes', async (request: Request, response) => {
+    const theme = request.body as ThemeResponse;
+    if (!theme?.name) {
+      return response.status(400).json({ error: 'name is required in theme' });
+    }
+    const baseDir = path.join(request.user.directories.root, THEME_DIR);
+    await mkdir(baseDir, { recursive: true });
+    const filePath = path.join(baseDir, `${theme.name}.json`);
+    try {
+      await writeFile(filePath, JSON.stringify(theme.theme, null, 2), 'utf8');
+      response.json({ success: true });
+    } catch (error) {
+      console.error('Error saving theme:', error);
+      response.status(500).json({ error: 'Failed to save theme' });
+    }
+  });
+
+  // @ts-ignore
+  router.delete('/themes/:name', async (request: Request, response) => {
+    const { name } = request.params;
+    const baseDir = path.join(request.user.directories.root, THEME_DIR);
+    const filePath = path.join(baseDir, `${name}.json`);
+    try {
+      await unlink(filePath);
+      response.sendStatus(204);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        response.status(404).json({ error: 'Theme not found' });
+      } else {
+        console.error('Error deleting theme:', error);
+        response.status(500).json({ error: 'Failed to delete theme' });
       }
     }
   });
