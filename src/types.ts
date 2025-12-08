@@ -27,5 +27,5 @@ export interface ThemeDefinition {
 
 export interface ThemeResponse {
   name: string;
-  theme: ThemeDefinition;
+  preset: ThemeDefinition;
 }

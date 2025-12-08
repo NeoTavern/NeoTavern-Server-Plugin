@@ -134,7 +134,7 @@ async function init(router: Router): Promise<void> {
           const filePath = path.join(baseDir, entry.name);
           const content = await readFile(filePath, 'utf8');
           const themeData: Record<string, unknown> = JSON.parse(content);
-          themes.push({ name, theme: themeData } as ThemeResponse);
+          themes.push({ name, preset: themeData } as ThemeResponse);
         }
       }
       response.json(themes);
@@ -156,7 +156,7 @@ async function init(router: Router): Promise<void> {
     try {
       const content = await readFile(filePath, 'utf8');
       const themeData: Record<string, unknown> = JSON.parse(content);
-      response.json({ name, theme: themeData } satisfies ThemeResponse);
+      response.json({ name, preset: themeData } satisfies ThemeResponse);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         response.status(404).json({ error: 'Theme not found' });
@@ -170,14 +170,14 @@ async function init(router: Router): Promise<void> {
   // @ts-ignore
   router.post('/themes', async (request: Request, response) => {
     const theme = request.body as ThemeResponse;
-    if (!theme?.name) {
-      return response.status(400).json({ error: 'name is required in theme' });
+    if (!theme?.name || !theme?.preset) {
+      return response.status(400).json({ error: 'Both name and preset are required' });
     }
     const baseDir = path.join(request.user.directories.root, THEME_DIR);
     await mkdir(baseDir, { recursive: true });
     const filePath = path.join(baseDir, `${theme.name}.json`);
     try {
-      await writeFile(filePath, JSON.stringify(theme.theme, null, 2), 'utf8');
+      await writeFile(filePath, JSON.stringify(theme.preset, null, 2), 'utf8');
       response.json({ success: true });
     } catch (error) {
       console.error('Error saving theme:', error);
@@ -212,7 +212,7 @@ interface PluginInfo {
 
 export default {
   init,
-  exit: (): void => {},
+  exit: (): void => { },
   info: {
     id: ID,
     name: 'V2 Server',
