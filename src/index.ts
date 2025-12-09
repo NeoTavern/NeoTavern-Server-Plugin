@@ -3,10 +3,10 @@ import { Request, SamplerPresetResponse, ThemeResponse } from './types';
 import path from 'node:path';
 import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 
-const ID = 'v2';
-const SETTINGS_FILE = 'v2Settings.json';
-const PRESET_DIR = 'v2ExperimentalSamplerPreset';
-const THEME_DIR = 'v2Themes';
+const ID = 'neo';
+const SETTINGS_FILE = 'NeoSettings.json';
+const PRESET_DIR = 'NeoSamplers';
+const THEME_DIR = 'NeoThemes';
 
 async function init(router: Router): Promise<void> {
   // @ts-ignore
@@ -42,7 +42,7 @@ async function init(router: Router): Promise<void> {
   });
 
   // @ts-ignore
-  router.get('/v2ExperimentalSamplerPreset', async (request: Request, response) => {
+  router.get('/samplers', async (request: Request, response) => {
     const baseDir = path.join(request.user.directories.root, PRESET_DIR);
     try {
       const entries = await readdir(baseDir, { withFileTypes: true });
@@ -68,7 +68,7 @@ async function init(router: Router): Promise<void> {
   });
 
   // @ts-ignore
-  router.get('/v2ExperimentalSamplerPreset/:name', async (request: Request, response) => {
+  router.get('/samplers/:name', async (request: Request, response) => {
     const { name } = request.params;
     const baseDir = path.join(request.user.directories.root, PRESET_DIR);
     const filePath = path.join(baseDir, `${name}.json`);
@@ -87,7 +87,7 @@ async function init(router: Router): Promise<void> {
   });
 
   // @ts-ignore
-  router.post('/v2ExperimentalSamplerPreset', async (request: Request, response) => {
+  router.post('/samplers', async (request: Request, response) => {
     const preset = request.body as SamplerPresetResponse;
     if (!preset?.name) {
       return response.status(400).json({ error: 'name is required in preset' });
@@ -105,7 +105,7 @@ async function init(router: Router): Promise<void> {
   });
 
   // @ts-ignore
-  router.delete('/v2ExperimentalSamplerPreset/:name', async (request: Request, response) => {
+  router.delete('/samplers/:name', async (request: Request, response) => {
     const { name } = request.params;
     const baseDir = path.join(request.user.directories.root, PRESET_DIR);
     const filePath = path.join(baseDir, `${name}.json`);
@@ -215,8 +215,8 @@ export default {
   exit: (): void => {},
   info: {
     id: ID,
-    name: 'V2 Server',
-    description: 'Allows you to connect to a V2 server',
+    name: 'NeoTavern Server Plugin',
+    description: 'Allows you to use NeoTavern-Frontend with SillyTavern.',
   },
 } as {
   init: (router: Router) => Promise<void>;

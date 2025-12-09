@@ -1,7 +1,7 @@
 {
-    "name": "sillytavern-v2-server",
+    "name": "neotavern-server-plugin",
     "version": "1.0.0",
-    "description": "Server plugin for SillyTavern using V2",
+    "description": "NeoTavern server plugin for SillyTavern",
     "main": "dist/index.js",
     "type": "commonjs",
     "scripts": {
@@ -12,17 +12,18 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/SillyTavern/bmen25124/SillyTavern-V2-Server.git"
+        "url": "git+https://github.com/NeoTavern/NeoTavern-Server-Plugin.git"
     },
     "keywords": [
-        "sillytavern"
+        "sillytavern",
+        "neotavern"
     ],
-    "author": "bmen25124",
+    "author": "NeoTavern",
     "license": "AGPL-3.0",
     "bugs": {
-        "url": "https://github.com/SillyTavern/bmen25124/SillyTavern-V2-Server/issues"
+        "url": "https://github.com/NeoTavern/NeoTavern-Server-Plugin/issues"
     },
-    "homepage": "https://github.com/SillyTavern/bmen25124/SillyTavern-V2-Server#readme",
+    "homepage": "https://github.com/NeoTavern/NeoTavern-Server-Plugin#readme",
     "devDependencies": {
         "@eslint/js": "^9.17.0",
         "@types/express": "^5.0.0",
