@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { Request, SamplerPresetResponse, ThemeResponse } from './types';
 import path from 'node:path';
 import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
+import EventEmitter from 'node:events';
+import process from 'node:process';
 
 const ID = 'neo';
 const SETTINGS_FILE = 'NeoSettings.json';
@@ -9,6 +11,15 @@ const PRESET_DIR = 'NeoSamplers';
 const THEME_DIR = 'NeoThemes';
 
 async function init(router: Router): Promise<void> {
+  // @ts-ignore
+  (process.serverEvents as EventEmitter).on('server-started', () => {
+    const port = process.env.NEO_APP_PORT;
+    const host = process.env.NEO_APP_HOST;
+    if (host && port) {
+      console.log(`[NeoTavern] Server started at http://${host}:${port}\n\n`);
+    }
+  });
+
   // @ts-ignore
   router.get('/settings', async (request: Request, response) => {
     try {
