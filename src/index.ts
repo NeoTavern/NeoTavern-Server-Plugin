@@ -16,7 +16,7 @@ async function init(router: Router): Promise<void> {
     const port = process.env.NEO_APP_PORT;
     const host = process.env.NEO_APP_HOST;
     if (host && port) {
-      console.log(`[NeoTavern] Server started at http://${host}:${port}\n\n`);
+      console.log(`NeoTavern started at http://${host}:${port}\n\n`);
     }
   });
 
