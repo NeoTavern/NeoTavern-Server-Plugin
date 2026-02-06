@@ -213,6 +213,27 @@ async function init(router: Router): Promise<void> {
       }
     }
   });
+
+  // Proxy endpoint to bypass CORS for GET requests
+  // @ts-ignore
+  router.get('/proxy', async (request: Request, response) => {
+    const url = request.query.url as string;
+    if (!url) {
+      return response.status(400).json({ error: 'url query parameter is required' });
+    }
+    try {
+      const fetchResponse = await fetch(url);
+      const contentType = fetchResponse.headers.get('content-type');
+      if (contentType) {
+        response.set('Content-Type', contentType);
+      }
+      const data = await fetchResponse.text();
+      response.send(data);
+    } catch (error) {
+      console.error('Error proxying request:', error);
+      response.status(500).json({ error: 'Failed to proxy request' });
+    }
+  });
 }
 
 interface PluginInfo {
